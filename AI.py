@@ -2,6 +2,7 @@ import MapGeneration as MapGen
 import random
 
 # in case we want more variables
+# prob is prob the target is in unit
 class ProbUnit:
     def __init__(self, prob, coordinates):
         self.prob = prob  # 0 to 1 value on probability of false negative
@@ -25,6 +26,7 @@ def update(coordinates, grid, probs):
     chance = grid[x][y].chance
     probs[x][y].prob = oldProb * (1 - chance)
     difference = probs[x][y].prob - oldProb
+    # distribute diff to other values
     return probs
 
 
@@ -42,6 +44,7 @@ def searching(coordinates, grid):
 def play():
 
     terrains = {0.1: "flat", 0.3: "hilly", 0.7: "forested", 0.9: "maze of caverns"}
+    # make 50
     grid = MapGen.makeMap(10, terrains)
     MapGen.gridPrint(grid)
 

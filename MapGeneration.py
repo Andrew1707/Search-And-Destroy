@@ -1,10 +1,10 @@
 import random
 
-
+# chance is the chance of failing a search
 class GridUnit:
-    def __init__(self, status, prob, coordinates):
+    def __init__(self, status, chance, coordinates):
         self.status = status  # 0 for no target, 1 for has target
-        self.prob = prob  # 0 to 1 value on probability of false negative
+        self.chance = chance  # 0 to 1 value on probability of false negative
         self.coordinates = coordinates  # tuples (x,y)probability
         # self.terrain = terrain  # string of terrain name, idk if we need this
 
@@ -25,8 +25,7 @@ def isValid(grid, coordinates):
 # no terrians with same prob mkay
 def makeMap(gridlength, terrains):
 
-    # key = terrains.keys()
-
+    # pick random terrain out of terrain dictionary
     grid = [
         [GridUnit(0, random.choice(list(terrains)), (i, j)) for j in range(gridlength)]
         for i in range(gridlength)
@@ -45,19 +44,14 @@ def gridPrint(grid):
     for i in range(gridlength):
         print()
         for j in range(gridlength):
-            if grid[i][j].prob == 0.1:
+            if grid[i][j].chance == 0.1:
                 print("⬜", end=" ")
-            elif grid[i][j].prob == 0.3:
+            elif grid[i][j].chance == 0.3:
                 print("🟫", end=" ")
-            elif grid[i][j].prob == 0.7:
+            elif grid[i][j].chance == 0.7:
                 print("🟩", end=" ")
-            elif grid[i][j].prob == 0.9:
+            elif grid[i][j].chance == 0.9:
                 print("⬛", end=" ")
-            # unknown prob in case more terrain added idk
+            # unknown chance in case more terrain added idk
             else:
                 print("🟥", end=" ")
-
-
-terrains = {0.1: "flat", 0.3: "hilly", 0.7: "forested", 0.9: "maze of caverns"}
-grid = makeMap(10, terrains)
-gridPrint(grid)
