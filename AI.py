@@ -42,6 +42,19 @@ def searching(coordinates, grid):
     return False
 
 
+# Finds highest probability(s) in probs grid
+def most_likely_container(probs):
+    highest_probs_set = set((0,0))
+    highest_prob = probs[0][0]
+    for i in probs:
+        for j in probs:
+            if probs[i][j] > highest_prob:
+                highest_probs_set.clear
+                highest_probs_set.add((i,j))
+            if probs[i][j] == highest_prob:
+                highest_probs_set.add((i,j))
+
+
 # return set of coords that have the easiest chance to find target
 def easiest_find():
     pass
