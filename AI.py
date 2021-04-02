@@ -1,7 +1,7 @@
 import MapGeneration as MapGen
 import random
 import numpy as np
-
+#! remove this comment
 
 # computes total likelihood of returning a fail in the entire grid
 def computeFail(grid, probs):
