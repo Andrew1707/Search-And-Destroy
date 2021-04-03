@@ -44,15 +44,15 @@ def searching(coordinates, grid):
 
 # Finds highest probability(s) in probs grid
 def most_likely_container(probs):
-    highest_probs_set = set((0,0))
+    highest_probs_set = set((0, 0))
     highest_prob = probs[0][0]
     for i in probs:
         for j in probs:
             if probs[i][j] > highest_prob:
                 highest_probs_set.clear
-                highest_probs_set.add((i,j))
+                highest_probs_set.add((i, j))
             if probs[i][j] == highest_prob:
-                highest_probs_set.add((i,j))
+                highest_probs_set.add((i, j))
 
 
 # return set of coords that have the easiest chance to find target
@@ -69,10 +69,17 @@ def nearest_search(location, searchables, grid):
         manhattan = abs(location[0] - x[0]) + abs(location[1] - x[1])
         if manhattan < minimum:
             minimum = manhattan
-            closest_searchables = x
+            closest_searchables = {x}
         elif manhattan == minimum:
-            closest_searchables = closest_searchables | x
+            closest_searchables = closest_searchables | {x}
     return closest_searchables
+
+
+# finds the shortest path with highest sum(probs) to traverse
+# if you want to get to point b, why travel over deep caves when you can travel
+# over flat and search on the way
+def smart_pathing(location, searchables, grid):
+    pass
 
 
 # Basic Agent 1: Iteratively travel to the cell with highest prob of containing target
@@ -112,7 +119,7 @@ def fool2(grid):
 
 def play():
 
-    terrains = {0.1: "flat", 0.3: "hilly", 0.7: "forested", 0.9: "maze of caverns"}
+    terrains = {0.1: "flat", 0.3: "hilly", 0.7: "forested", 0.9: "grid of caverns"}
     # make 50
     gridlen = 10
     grid = MapGen.makeMap(gridlen, terrains)
