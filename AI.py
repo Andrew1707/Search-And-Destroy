@@ -1,6 +1,5 @@
 import MapGeneration as MapGen
 import random
-import numpy as np
 
 
 class probability:
@@ -12,11 +11,12 @@ class probability:
 
 
 # computes total likelihood of returning a fail in the entire grid
-def computeFail(grid, probs):
+def computeFail(probs):
     total_fail_chance = 0.0
-    for i in probs:
-        for j in probs:
-            total_fail_chance += probs[i][j] * grid[i][j].chance
+    gridlen = len(probs)
+    for i in range(gridlen):
+        for j in range(gridlen):
+            total_fail_chance += probs[i][j].prob * probs[i][j].chance
     return total_fail_chance
 
 
@@ -26,18 +26,19 @@ def update(coordinates, grid, probs):
     y = coordinates[1]
     oldProb = probs[x][y].prob
     chance = grid[x][y].chance
-    total_fail_chance = computeFail(grid, probs)
+    total_fail_chance = computeFail(probs)
 
     probs[x][y].prob = oldProb * chance / total_fail_chance
+    #*Considering removing total_fail_chance from equation
 
     # distribute diff to other values
-    difference = probs[x][y].prob - oldProb
+    difference = oldProb - probs[x][y].prob
     addToAll = difference / ((len(grid) ** 2) - 1)
     for i in range(len(grid)):
         for j in range(len(grid)):
-            if not (i == x or j == y):
-                probs[i][j] += addToAll
-    return probs, difference
+            if not (i == x and j == y):
+                probs[i][j].prob += addToAll
+    return probs
 
 
 # when you want to search a unit, returns if search failed or not
@@ -53,14 +54,13 @@ def searching(coordinates, grid):
 # Finds highest probability(s) in probs grid
 def most_likely_container(probs, gridlen):
     highest_probs_set = set()
-    highest_probs_set.add((0,0))
-    highest_prob = probs[0][0]
+    highest_prob = 0
     for i in range(gridlen):
         for j in range(gridlen):
-            if probs[i][j] > highest_prob:
+            if probs[i][j].prob > highest_prob:
                 highest_probs_set.clear
                 highest_probs_set.add((i, j))
-            if probs[i][j] == highest_prob:
+            elif probs[i][j].prob == highest_prob:
                 highest_probs_set.add((i, j))
     return highest_probs_set
 
@@ -76,7 +76,6 @@ def nearest_search(location, searchables, grid):
     minimum = len(grid) + len(grid)
     closest_searchables = set()
     for x in searchables:
-        print(f'x: {x}') #!rem
         manhattan = abs(location[0] - x[0]) + abs(location[1] - x[1])
         if manhattan < minimum:
             minimum = manhattan
@@ -104,14 +103,15 @@ def fool1(grid, probs):
     number_of_searches = 0
     distance_traveled = 0
 
+    #print(f'start_loc: ({x},{y})') #!rem
     while not target_found:
         # Find highest probability square to move to
         highest_probs_set = most_likely_container(probs, gridlen)
-        print(highest_probs_set) #!rem
+        #print(highest_probs_set) #!rem
         highest_probs_set = nearest_search((x,y), highest_probs_set, grid)
-        new_loc = highest_probs_set.pop
+        new_loc = highest_probs_set.pop()
 
-        print(f'new_loc: {new_loc}')
+        #print(f'new_loc: {new_loc}') #!rem
         
         # "Teleport" to new_loc and add distance covered to distance_traveled
         deltaX = abs(new_loc[0] - x)
@@ -120,6 +120,7 @@ def fool1(grid, probs):
 
         # Search new_loc cell
         target_found = searching(new_loc, grid)
+        probs = update(new_loc, grid, probs)
         number_of_searches += 1
 
         # Update x and y to current location
@@ -148,11 +149,18 @@ def play():
     MapGen.gridPrint(grid)
 
     found = False
-    probs = np.full((gridlen, gridlen), (1 / (gridlen ** 2)), dtype=float)
+    init_prob = float(1 / (gridlen ** 2))
+    probs = list()
+    for i in range(gridlen):
+        temp = list()
+        for j in range(gridlen):
+            temp.append(probability(init_prob, (i,j), grid[i][j].chance))
+        probs.append(temp)
 
-    num_searches, dist_traveled = fool1(grid, probs)
-    print(f'num_searches: {num_searches}')
-    print(f'dist_traveled: {dist_traveled}')
+
+    #num_searches, dist_traveled = fool1(grid, probs) #!rem
+    #print(f'num_searches: {num_searches}') #!rem
+    #print(f'dist_traveled: {dist_traveled}') #!rem
     pass
     while found == False:
         pass

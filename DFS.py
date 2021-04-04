@@ -45,7 +45,7 @@ def DFS(grid, start, end):
                 if (x.coords[0] + 1, x.coords[1]) not in visited:
                     new = Node((x.coords[0] + 1, x.coords[1]), x)
                     next_move.add(new)
-                    x.child = {new} | x.child  # why does child hav itsself as child
+                    x.child = {new} | x.child
             if isValid(grid, (x.coords[0] - 1, x.coords[1]), start, end):
                 if (x.coords[0] - 1, x.coords[1]) not in visited:
                     new = Node((x.coords[0] - 1, x.coords[1]), x)
