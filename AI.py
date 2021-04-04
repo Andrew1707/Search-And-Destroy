@@ -43,16 +43,18 @@ def searching(coordinates, grid):
 
 
 # Finds highest probability(s) in probs grid
-def most_likely_container(probs):
-    highest_probs_set = set((0, 0))
+def most_likely_container(probs, gridlen):
+    highest_probs_set = set()
+    highest_probs_set.add((0,0))
     highest_prob = probs[0][0]
-    for i in probs:
-        for j in probs:
+    for i in range(gridlen):
+        for j in range(gridlen):
             if probs[i][j] > highest_prob:
                 highest_probs_set.clear
                 highest_probs_set.add((i, j))
             if probs[i][j] == highest_prob:
                 highest_probs_set.add((i, j))
+    return highest_probs_set
 
 
 # return set of coords that have the easiest chance to find target
@@ -66,6 +68,7 @@ def nearest_search(location, searchables, grid):
     minimum = len(grid) + len(grid)
     closest_searchables = set()
     for x in searchables:
+        print(f'x: {x}') #!rem
         manhattan = abs(location[0] - x[0]) + abs(location[1] - x[1])
         if manhattan < minimum:
             minimum = manhattan
@@ -83,7 +86,7 @@ def smart_pathing(location, searchables, grid):
 
 
 # Basic Agent 1: Iteratively travel to the cell with highest prob of containing target
-def fool1(grid):
+def fool1(grid, probs):
     # Start at random location
     gridlen = len(grid)
     x = random.randint(0, gridlen - 1)
@@ -94,17 +97,28 @@ def fool1(grid):
     distance_traveled = 0
 
     while not target_found:
-        # Either search current cell or move up/down/left/right
+        # Find highest probability square to move to
+        highest_probs_set = most_likely_container(probs, gridlen)
+        print(highest_probs_set) #!rem
+        highest_probs_set = nearest_search((x,y), highest_probs_set, grid)
+        new_loc = highest_probs_set.pop
 
-        # If decide to search current cell
-        target_found = searching((x, y), grid)
+        print(f'new_loc: {new_loc}')
+        
+        # "Teleport" to new_loc and add distance covered to distance_traveled
+        deltaX = abs(new_loc[0] - x)
+        deltaY = abs(new_loc[1] - y)
+        distance_traveled = distance_traveled + deltaX + deltaY
+
+        # Search new_loc cell
+        target_found = searching(new_loc, grid)
         number_of_searches += 1
 
-        # If decide to move
-        # set new x and y
-        # compare adjacent cells for prob of containing target
+        # Update x and y to current location
+        x = new_loc[0]
+        y = new_loc[1]
 
-    return None  # * filler line
+    return number_of_searches, distance_traveled
 
 
 # Basic Agent 2: Iteratively travel to the cell with the highest prob of finding target
@@ -128,6 +142,9 @@ def play():
     found = False
     probs = np.full((gridlen, gridlen), (1 / (gridlen ** 2)), dtype=float)
 
+    num_searches, dist_traveled = fool1(grid, probs)
+    print(f'num_searches: {num_searches}')
+    print(f'dist_traveled: {dist_traveled}')
     pass
     while found == False:
         pass
