@@ -3,6 +3,14 @@ import random
 import numpy as np
 
 
+class probability:
+    def __init__(self, prob, coordinates, chance):
+        self.prob = prob
+        self.coords = coordinates
+        self.chance = chance
+        self.utility = prob * chance
+
+
 # computes total likelihood of returning a fail in the entire grid
 def computeFail(grid, probs):
     total_fail_chance = 0.0
