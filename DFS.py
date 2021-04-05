@@ -72,6 +72,7 @@ def DFS(grid, start, end):
     # return startNode
 
 
+# turns the non binary tree created by DFS into
 def get_paths(startNode, path_list=[]):
     # print("start", startNode.coords, path_list)
     if len(startNode.child) == 0:
@@ -91,7 +92,11 @@ def get_paths(startNode, path_list=[]):
     return path_list
 
 
-def best_path(probs, path_list):
+# picks the path with the highest sum utility to traverse
+def best_path(grid, probs, start, end):
+    tree = DFS(grid, start, end)
+    path_list = tree
+
     best_utility = 0
     best_path = []
     for path in path_list:
