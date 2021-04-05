@@ -11,12 +11,17 @@ class probability:
 
 
 # computes total likelihood of returning a fail in the entire grid
-def computeFail(probs):
+def computeFail(probs, coords):
     total_fail_chance = 0.0
     gridlen = len(probs)
+    x = coords[0]
+    y = coords[1]
     for i in range(gridlen):
         for j in range(gridlen):
-            total_fail_chance += probs[i][j].prob * probs[i][j].chance
+            if i != x and j != y:
+                total_fail_chance += probs[1][j].prob
+            else:
+                total_fail_chance += probs[i][j].prob * probs[i][j].chance
     return total_fail_chance
 
 
@@ -24,20 +29,14 @@ def computeFail(probs):
 def update(coordinates, grid, probs):
     x = coordinates[0]
     y = coordinates[1]
-    oldProb = probs[x][y].prob
-    chance = grid[x][y].chance
-    total_fail_chance = computeFail(probs)
+    total_fail_chance = computeFail(probs, (x,y))
 
-    probs[x][y].prob = oldProb * chance / total_fail_chance
-    #*Considering removing total_fail_chance from equation
-
-    # distribute diff to other values
-    difference = oldProb - probs[x][y].prob
-    addToAll = difference / ((len(grid) ** 2) - 1)
     for i in range(len(grid)):
         for j in range(len(grid)):
-            if not (i == x and j == y):
-                probs[i][j].prob += addToAll
+            if i != x and j != y:
+                probs[i][j].prob = probs[i][j].prob / total_fail_chance
+            else:
+                probs[i][j].prob = probs[i][j].prob * probs[i][j].chance / total_fail_chance
     return probs
 
 
