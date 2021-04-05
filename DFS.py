@@ -95,7 +95,7 @@ def get_paths(startNode, path_list=[]):
 # picks the path with the highest sum utility to traverse
 def best_path(grid, probs, start, end):
     tree = DFS(grid, start, end)
-    path_list = tree
+    path_list = get_paths(tree)
 
     best_utility = 0
     best_path = []
