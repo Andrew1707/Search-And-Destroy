@@ -21,6 +21,10 @@ def isValid(grid, curr, start, end):
     return True
 
 
+# finds the shortest path with highest sum(probs) to traverse
+# if you want to get to point b, why travel over deep caves when you can travel
+# over flat and search on the way
+
 # DFS execution starting at (sx,sy) reaching (gx,gy), returns goal node if success, returns None if not
 def DFS(grid, start, end):
     # gridlength = len(grid)
@@ -85,6 +89,20 @@ def get_paths(startNode, path_list=[]):
         # print("child", child.coords)
         path_list = get_paths(child, path_list)
     return path_list
+
+
+def best_path(probs, path_list):
+    best_utility = 0
+    best_path = []
+    for path in path_list:
+        utility = 0
+        for coord in path:
+            x = coord[0]
+            y = coord[1]
+            utility += probs[x][y].utility
+        if utility > best_utility:
+            best_path = path
+    return best_path
 
 
 # start = (1, 1)

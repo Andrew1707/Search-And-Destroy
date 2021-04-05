@@ -29,7 +29,7 @@ def update(coordinates, grid, probs):
     total_fail_chance = computeFail(probs)
 
     probs[x][y].prob = oldProb * chance / total_fail_chance
-    #*Considering removing total_fail_chance from equation
+    # *Considering removing total_fail_chance from equation
 
     # distribute diff to other values
     difference = oldProb - probs[x][y].prob
@@ -52,7 +52,8 @@ def searching(coordinates, grid):
 
 
 # Finds highest probability(s) in probs grid
-def most_likely_container(probs, gridlen):
+def most_likely_container(probs):
+    gridlen = len(probs)
     highest_probs_set = set()
     highest_prob = 0
     for i in range(gridlen):
@@ -66,8 +67,18 @@ def most_likely_container(probs, gridlen):
 
 
 # return set of coords that have the easiest chance to find target
-def easiest_find():
-    pass
+def easiest_find(probs):
+    gridlen = len(probs)
+    highest_probs_set = set()
+    highest_prob = 0
+    for i in range(gridlen):
+        for j in range(gridlen):
+            if probs[i][j].utility > highest_prob:
+                highest_probs_set.clear
+                highest_probs_set.add((i, j))
+            elif probs[i][j].utility == highest_prob:
+                highest_probs_set.add((i, j))
+    return highest_probs_set
 
 
 # takes set of tuples and returns set of tuples that are closest to agent
@@ -85,13 +96,6 @@ def nearest_search(location, searchables, grid):
     return closest_searchables
 
 
-# finds the shortest path with highest sum(probs) to traverse
-# if you want to get to point b, why travel over deep caves when you can travel
-# over flat and search on the way
-def smart_pathing(location, searchables, grid):
-    pass
-
-
 # Basic Agent 1: Iteratively travel to the cell with highest prob of containing target
 def fool1(grid, probs):
     # Start at random location
@@ -103,16 +107,16 @@ def fool1(grid, probs):
     number_of_searches = 0
     distance_traveled = 0
 
-    #print(f'start_loc: ({x},{y})') #!rem
+    # print(f'start_loc: ({x},{y})') #!rem
     while not target_found:
         # Find highest probability square to move to
-        highest_probs_set = most_likely_container(probs, gridlen)
-        #print(highest_probs_set) #!rem
-        highest_probs_set = nearest_search((x,y), highest_probs_set, grid)
+        highest_probs_set = most_likely_container(probs)
+        # print(highest_probs_set) #!rem
+        highest_probs_set = nearest_search((x, y), highest_probs_set, grid)
         new_loc = highest_probs_set.pop()
 
-        #print(f'new_loc: {new_loc}') #!rem
-        
+        # print(f'new_loc: {new_loc}') #!rem
+
         # "Teleport" to new_loc and add distance covered to distance_traveled
         deltaX = abs(new_loc[0] - x)
         deltaY = abs(new_loc[1] - y)
@@ -131,13 +135,41 @@ def fool1(grid, probs):
 
 
 # Basic Agent 2: Iteratively travel to the cell with the highest prob of finding target
-def fool2(grid):
+def fool2(grid, probs):
     # Start at random location
     gridlen = len(grid)
     x = random.randint(0, gridlen - 1)
     y = random.randint(0, gridlen - 1)
 
-    return None  # * filler line
+    target_found = False
+    number_of_searches = 0
+    distance_traveled = 0
+
+    # print(f'start_loc: ({x},{y})') #!rem
+    while not target_found:
+        # Find easiest square to search for target
+        highest_probs_set = easiest_find(probs)
+        # print(highest_probs_set) #!rem
+        highest_probs_set = nearest_search((x, y), highest_probs_set, grid)
+        new_loc = highest_probs_set.pop()
+
+        # print(f'new_loc: {new_loc}') #!rem
+
+        # "Teleport" to new_loc and add distance covered to distance_traveled
+        deltaX = abs(new_loc[0] - x)
+        deltaY = abs(new_loc[1] - y)
+        distance_traveled = distance_traveled + deltaX + deltaY
+
+        # Search new_loc cell
+        target_found = searching(new_loc, grid)
+        probs = update(new_loc, grid, probs)
+        number_of_searches += 1
+
+        # Update x and y to current location
+        x = new_loc[0]
+        y = new_loc[1]
+
+    return number_of_searches, distance_traveled
 
 
 def play():
@@ -154,13 +186,12 @@ def play():
     for i in range(gridlen):
         temp = list()
         for j in range(gridlen):
-            temp.append(probability(init_prob, (i,j), grid[i][j].chance))
+            temp.append(probability(init_prob, (i, j), grid[i][j].chance))
         probs.append(temp)
 
-
-    #num_searches, dist_traveled = fool1(grid, probs) #!rem
-    #print(f'num_searches: {num_searches}') #!rem
-    #print(f'dist_traveled: {dist_traveled}') #!rem
+    # num_searches, dist_traveled = fool1(grid, probs) #!rem
+    # print(f'num_searches: {num_searches}') #!rem
+    # print(f'dist_traveled: {dist_traveled}') #!rem
     pass
     while found == False:
         pass
