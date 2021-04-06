@@ -1,5 +1,6 @@
 import MapGeneration as MapGen
 import random
+import DFS as DFS
 
 
 class probability:
@@ -29,17 +30,8 @@ def computeFail(probs, coords):
 def update(coordinates, grid, probs):
     x = coordinates[0]
     y = coordinates[1]
-    total_fail_chance = computeFail(probs, (x,y))
+    total_fail_chance = computeFail(probs, (x, y))
 
-<<<<<<< HEAD
-    probs[x][y].prob = oldProb * chance / total_fail_chance
-    # *Considering removing total_fail_chance from equation
-
-    # distribute diff to other values
-    difference = oldProb - probs[x][y].prob
-    addToAll = difference / ((len(grid) ** 2) - 1)
-=======
->>>>>>> 69697ad2d8753af84b10fe95be167b46b815fb3d
     for i in range(len(grid)):
         for j in range(len(grid)):
             if i != x and j != y:
@@ -172,6 +164,46 @@ def fool2(grid, probs):
         target_found = searching(new_loc, grid)
         probs = update(new_loc, grid, probs)
         number_of_searches += 1
+
+        # Update x and y to current location
+        x = new_loc[0]
+        y = new_loc[1]
+
+    return number_of_searches, distance_traveled
+
+
+def smart(grid, probs):
+    # Start at random location
+    gridlen = len(grid)
+    x = random.randint(0, gridlen - 1)
+    y = random.randint(0, gridlen - 1)
+
+    target_found = False
+    number_of_searches = 0
+    distance_traveled = 0
+
+    # print(f'start_loc: ({x},{y})') #!rem
+    while not target_found:
+        # Find easiest square to search for target
+        highest_probs_set = easiest_find(probs)
+        # print(highest_probs_set) #!rem
+        highest_probs_set = nearest_search((x, y), highest_probs_set, grid)
+        new_loc = highest_probs_set.pop()
+
+        # print(f'new_loc: {new_loc}') #!rem
+        best_path = DFS.best_path(grid, probs, (x, y), new_loc)
+
+        destination_utility = probs[new_loc[0]][new_loc[1]]
+        # benton i don't know what to make this value
+        worth_checking_util = 0.75 * destination_utility
+        for coord in best_path:
+            distance_traveled += 1
+            if probs[coord[0]][coord[1]].utility >= worth_checking_util:
+                target_found = searching(coord, grid)
+                probs = update(coord, grid, probs)
+                number_of_searches += 1
+                if target_found:
+                    return number_of_searches, distance_traveled
 
         # Update x and y to current location
         x = new_loc[0]
