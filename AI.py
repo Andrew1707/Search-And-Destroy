@@ -11,6 +11,15 @@ class probability:
         self.utility = prob * chance
 
 
+# Debugging support method: prints probs matrix
+def probsPrint(probs):
+    print('probs:')
+    for i in range(len(probs)):
+        for j in range(len(probs)):
+            print(probs[i][j].prob, end=' ')
+        print('\n')
+
+
 # computes total likelihood of returning a fail in the entire grid
 def computeFail(probs, coords):
     total_fail_chance = 0.0
@@ -19,10 +28,10 @@ def computeFail(probs, coords):
     y = coords[1]
     for i in range(gridlen):
         for j in range(gridlen):
-            if i != x and j != y:
-                total_fail_chance += probs[1][j].prob
+            if (i == x and j == y):
+                total_fail_chance += probs[1][j].prob * probs[i][j].chance
             else:
-                total_fail_chance += probs[i][j].prob * probs[i][j].chance
+                total_fail_chance += probs[i][j].prob
     return total_fail_chance
 
 
@@ -34,7 +43,7 @@ def update(coordinates, grid, probs):
 
     for i in range(len(grid)):
         for j in range(len(grid)):
-            if i != x and j != y:
+            if i != x or j != y:
                 probs[i][j].prob = probs[i][j].prob / total_fail_chance
             else:
                 probs[i][j].prob = probs[i][j].prob * probs[i][j].chance / total_fail_chance
@@ -59,8 +68,8 @@ def most_likely_container(probs):
     for i in range(gridlen):
         for j in range(gridlen):
             if probs[i][j].prob > highest_prob:
-                highest_probs_set.clear
-                highest_probs_set.add((i, j))
+                highest_probs_set = {(i,j)}
+                highest_prob = probs[i][j].prob
             elif probs[i][j].prob == highest_prob:
                 highest_probs_set.add((i, j))
     return highest_probs_set
@@ -69,16 +78,16 @@ def most_likely_container(probs):
 # return set of coords that have the easiest chance to find target
 def easiest_find(probs):
     gridlen = len(probs)
-    highest_probs_set = set()
-    highest_prob = 0
+    highest_utility_set = set()
+    highest_util = 0
     for i in range(gridlen):
         for j in range(gridlen):
-            if probs[i][j].utility > highest_prob:
-                highest_probs_set.clear
-                highest_probs_set.add((i, j))
-            elif probs[i][j].utility == highest_prob:
-                highest_probs_set.add((i, j))
-    return highest_probs_set
+            if probs[i][j].utility > highest_util:
+                highest_utility_set = {(i,j)}
+                highest_util = probs[i][j].utility
+            elif probs[i][j].utility == highest_util:
+                highest_utility_set.add((i, j))
+    return highest_utility_set
 
 
 # takes set of tuples and returns set of tuples that are closest to agent
@@ -107,15 +116,11 @@ def fool1(grid, probs):
     number_of_searches = 0
     distance_traveled = 0
 
-    # print(f'start_loc: ({x},{y})') #!rem
     while not target_found:
         # Find highest probability square to move to
         highest_probs_set = most_likely_container(probs)
-        # print(highest_probs_set) #!rem
         highest_probs_set = nearest_search((x, y), highest_probs_set, grid)
         new_loc = highest_probs_set.pop()
-
-        # print(f'new_loc: {new_loc}') #!rem
 
         # "Teleport" to new_loc and add distance covered to distance_traveled
         deltaX = abs(new_loc[0] - x)
@@ -220,7 +225,6 @@ def play():
     grid = MapGen.makeMap(gridlen, terrains)
     MapGen.gridPrint(grid)
 
-    found = False
     init_prob = float(1 / (gridlen ** 2))
     probs = list()
     for i in range(gridlen):
@@ -232,9 +236,6 @@ def play():
     # num_searches, dist_traveled = fool1(grid, probs) #!rem
     # print(f'num_searches: {num_searches}') #!rem
     # print(f'dist_traveled: {dist_traveled}') #!rem
-    pass
-    while found == False:
-        pass
 
 
 play()
