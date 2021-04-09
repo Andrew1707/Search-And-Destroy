@@ -8,7 +8,10 @@ class probability:
         self.prob = prob
         self.coords = coordinates
         self.chance = chance
-        self.utility = prob * chance
+    
+    @property
+    def utility(self):
+        return self.prob * (1 - self.chance)
 
 
 # Debugging support method: prints probs matrix
@@ -150,15 +153,11 @@ def fool2(grid, probs):
     number_of_searches = 0
     distance_traveled = 0
 
-    # print(f'start_loc: ({x},{y})') #!rem
     while not target_found:
         # Find easiest square to search for target
-        highest_probs_set = easiest_find(probs)
-        # print(highest_probs_set) #!rem
-        highest_probs_set = nearest_search((x, y), highest_probs_set, grid)
-        new_loc = highest_probs_set.pop()
-
-        # print(f'new_loc: {new_loc}') #!rem
+        highest_util_set = easiest_find(probs)
+        highest_util_set = nearest_search((x, y), highest_util_set, grid)
+        new_loc = highest_util_set.pop()
 
         # "Teleport" to new_loc and add distance covered to distance_traveled
         deltaX = abs(new_loc[0] - x)
@@ -233,7 +232,7 @@ def play():
             temp.append(probability(init_prob, (i, j), grid[i][j].chance))
         probs.append(temp)
 
-    # num_searches, dist_traveled = fool1(grid, probs) #!rem
+    # num_searches, dist_traveled = fool2(grid, probs) #!rem
     # print(f'num_searches: {num_searches}') #!rem
     # print(f'dist_traveled: {dist_traveled}') #!rem
 
