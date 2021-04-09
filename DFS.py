@@ -43,7 +43,7 @@ def DFS(grid, start, end):
 
         for x in curr:
             # print(x.coords)
-            if x.coords == end:  # ERROR
+            if x.coords == end:
                 return startNode
             if isValid(grid, (x.coords[0] + 1, x.coords[1]), start, end):
                 if (x.coords[0] + 1, x.coords[1]) not in visited:
@@ -78,7 +78,7 @@ def get_paths(startNode, path_list=[]):
     if len(startNode.child) == 0:
         curr = startNode
         path = []
-        while curr.parent != None:
+        while curr.parent:
             path.insert(0, curr.coords)
             curr = curr.parent
         path.insert(0, curr.coords)
@@ -95,7 +95,8 @@ def get_paths(startNode, path_list=[]):
 # picks the path with the highest sum utility to traverse
 def best_path(grid, probs, start, end):
     tree = DFS(grid, start, end)
-    path_list = get_paths(tree)
+    empty_list = []
+    path_list = get_paths(tree, empty_list)
 
     best_utility = 0
     best_path = []
@@ -107,19 +108,17 @@ def best_path(grid, probs, start, end):
             utility += probs[x][y].utility
         if utility > best_utility:
             best_path = path
+            best_utility = utility
     return best_path
 
 
-# start = (1, 1)
-# end = (6, 7)
+# start = (4, 1)
+# end = (5, 2)
 # terrains = {0.1: "flat", 0.3: "hilly", 0.7: "forested", 0.9: "grid of caverns"}
 # grid = MapGen.makeMap(10, terrains)
-# node = DFS(grid, start, end)
-# # print("started", node.coords)
-# # for x in node.child:
-# #     print(x.coords)
-# paths = get_paths(node)
-# for x in paths:
+# tree = DFS(grid, start, end)
+# path = get_paths(tree)
+# for x in path:
 #     print(x)
 #     print()
 

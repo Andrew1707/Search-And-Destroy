@@ -8,7 +8,7 @@ class probability:
         self.prob = prob
         self.coords = coordinates
         self.chance = chance
-    
+
     @property
     def utility(self):
         return self.prob * (1 - self.chance)
@@ -16,11 +16,11 @@ class probability:
 
 # Debugging support method: prints probs matrix
 def probsPrint(probs):
-    print('probs:')
+    print("probs:")
     for i in range(len(probs)):
         for j in range(len(probs)):
-            print(probs[i][j].prob, end=' ')
-        print('\n')
+            print(probs[i][j].prob, end=" ")
+        print("\n")
 
 
 # computes total likelihood of returning a fail in the entire grid
@@ -31,7 +31,7 @@ def computeFail(probs, coords):
     y = coords[1]
     for i in range(gridlen):
         for j in range(gridlen):
-            if (i == x and j == y):
+            if i == x and j == y:
                 total_fail_chance += probs[1][j].prob * probs[i][j].chance
             else:
                 total_fail_chance += probs[i][j].prob
@@ -71,7 +71,7 @@ def most_likely_container(probs):
     for i in range(gridlen):
         for j in range(gridlen):
             if probs[i][j].prob > highest_prob:
-                highest_probs_set = {(i,j)}
+                highest_probs_set = {(i, j)}
                 highest_prob = probs[i][j].prob
             elif probs[i][j].prob == highest_prob:
                 highest_probs_set.add((i, j))
@@ -86,7 +86,7 @@ def easiest_find(probs):
     for i in range(gridlen):
         for j in range(gridlen):
             if probs[i][j].utility > highest_util:
-                highest_utility_set = {(i,j)}
+                highest_utility_set = {(i, j)}
                 highest_util = probs[i][j].utility
             elif probs[i][j].utility == highest_util:
                 highest_utility_set.add((i, j))
@@ -195,9 +195,9 @@ def smart(grid, probs):
         new_loc = highest_probs_set.pop()
 
         # print(f'new_loc: {new_loc}') #!rem
-        best_path = DFS.best_path(grid, probs, (x, y), new_loc)
+        best_path = DFS.best_path(grid, probs, (x, y), new_loc)  # benton infin loop
 
-        destination_utility = probs[new_loc[0]][new_loc[1]]
+        destination_utility = probs[new_loc[0]][new_loc[1]].utility
         # benton i don't know what to make this value
         worth_checking_util = 0.75 * destination_utility
         for coord in best_path:
@@ -235,6 +235,26 @@ def play():
     # num_searches, dist_traveled = fool2(grid, probs) #!rem
     # print(f'num_searches: {num_searches}') #!rem
     # print(f'dist_traveled: {dist_traveled}') #!rem
+    # num_searches, dist_traveled = fooL2(grid, probs) #!rem
+    # print(f'num_searches: {num_searches}') #!rem
+    # print(f'dist_traveled: {dist_traveled}') #!rem
+    num_searches, dist_traveled = smart(grid, probs)  #!rem
+    print(f"num_searches: {num_searches}")  #!rem
+    print(f"dist_traveled: {dist_traveled}")  #!rem
 
 
+# start = (6, 7)
+# end = (6, 7)
+# terrains = {0.1: "flat", 0.3: "hilly", 0.7: "forested", 0.9: "grid of caverns"}
+# grid = MapGen.makeMap(10, terrains)
+# gridlen = 10
+# init_prob = float(1 / (gridlen ** 2))
+# probs = list()
+# for i in range(gridlen):
+#     temp = list()
+#     for j in range(gridlen):
+#         temp.append(probability(init_prob, (i, j), grid[i][j].chance))
+#     probs.append(temp)
+# best_path = DFS.best_path(grid, probs, start, end)
+# print(best_path)
 play()
