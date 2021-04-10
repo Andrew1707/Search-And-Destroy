@@ -207,20 +207,56 @@ def smart(grid, probs):
         highest_probs_set = nearest_search((x, y), highest_probs_set, grid)
         new_loc = highest_probs_set.pop()
 
-        # print(f'new_loc: {new_loc}') #!rem
-        best_path = DFS.best_path(grid, probs, (x, y), new_loc)  # benton infin loop
+        deltaX = abs(new_loc[0] - x)
+        deltaY = abs(new_loc[1] - y)
+        distance_to = deltaX + deltaY
 
         destination_utility = probs[new_loc[0]][new_loc[1]].utility
-        # benton i don't know what to make this value
-        worth_checking_util = 0.75 * destination_utility
-        for coord in best_path:
-            distance_traveled += 1
-            if probs[coord[0]][coord[1]].utility >= worth_checking_util:
-                target_found = searching(coord, grid)
-                probs = update(coord, grid, probs)
-                number_of_searches += 1
-                if target_found:
-                    return number_of_searches, distance_traveled
+        worth_checking_util = 0.5 * destination_utility
+
+        # if short enough to calculate the best path
+        if distance_to <= 10:
+            # print(f'new_loc: {new_loc}') #!rem
+            best_path = DFS.best_path(grid, probs, (x, y), new_loc)
+
+            for coord in best_path:
+                distance_traveled += 1
+                if probs[coord[0]][coord[1]].utility >= worth_checking_util:
+                    target_found = searching(coord, grid)
+                    probs = update(coord, grid, probs)
+                    number_of_searches += 1
+                    if target_found:
+                        return number_of_searches, distance_traveled
+        # make a random path`
+        else:
+            xinc = 0
+            yinc = 0
+            if new_loc[0] > x:
+                xinc = 1
+            else:
+                xinc = -1
+            if new_loc[1] > y:
+                yinc = 1
+            else:
+                yinc = -1
+
+            while x != new_loc[0] and y != new_loc[1]:
+                if x == new_loc[0]:
+                    y += yinc
+                elif y == new_loc[1]:
+                    x += xinc
+                else:
+                    if random.random() >= 0.5:
+                        y += yinc
+                    else:
+                        x += xinc
+                distance_traveled += 1
+                if probs[x][y].utility >= worth_checking_util:
+                    target_found = searching((x, y), grid)
+                    probs = update((x, y), grid, probs)
+                    number_of_searches += 1
+                    if target_found:
+                        return number_of_searches, distance_traveled
 
         # Update x and y to current location
         x = new_loc[0]
@@ -232,19 +268,19 @@ def smart(grid, probs):
 def agentComparator():
     terrains = {0.1: "flat", 0.3: "hilly", 0.7: "forested", 0.9: "grid of caverns"}
     gridlen = 50
-    num_maps = 15
-    map_repeats = 15
+    num_maps = 10
+    map_repeats = 10
     avg_fool1_search, avg_fool2_search, avg_smart_search = 0, 0, 0
     avg_fool1_dist, avg_fool2_dist, avg_smart_dist = 0, 0, 0
 
     # Generating maps
     for n in range(num_maps):
-        print(n) #!
+        print(n)  #!
         grid = MapGen.makeMap(gridlen, terrains)
 
         # Repeated agent runs on each map
         for i in range(map_repeats):
-            print(f'i: {i}') #!
+            print(f"i: {i}")  #!
             # Set up probability matrix for each agent
             probs = probSet(grid)
             num_searches1, dist_traveled1 = fool1(grid, probs)
@@ -261,12 +297,12 @@ def agentComparator():
             avg_smart_dist += dist_traveled_smart
 
     # Average out the map searches/distances for each agent
-    avg_fool1_search /= (num_maps * map_repeats)
-    avg_fool1_dist /= (num_maps * map_repeats)
-    avg_fool2_search /= (num_maps * map_repeats)
-    avg_fool2_dist /= (num_maps * map_repeats)
-    avg_smart_search /= (num_maps * map_repeats)
-    avg_smart_dist /= (num_maps * map_repeats)
+    avg_fool1_search /= num_maps * map_repeats
+    avg_fool1_dist /= num_maps * map_repeats
+    avg_fool2_search /= num_maps * map_repeats
+    avg_fool2_dist /= num_maps * map_repeats
+    avg_smart_search /= num_maps * map_repeats
+    avg_smart_dist /= num_maps * map_repeats
 
     print(f"fool1:  search={avg_fool1_search}\tdist={avg_fool1_dist}")
     print(f"fool2:  search={avg_fool2_search}\tdist={avg_fool2_dist}")
@@ -308,4 +344,6 @@ def play():
 #     probs.append(temp)
 # best_path = DFS.best_path(grid, probs, start, end)
 # print(best_path)
-play()
+# play()
+
+agentComparator()
