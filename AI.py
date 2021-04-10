@@ -14,6 +14,19 @@ class probability:
         return self.prob * (1 - self.chance)
 
 
+# Probability object matrix setter
+def probSet(grid):
+    gridlen = len(grid)
+    init_prob = float(1 / (gridlen ** 2))
+    probs = list()
+    for i in range(gridlen):
+        temp = list()
+        for j in range(gridlen):
+            temp.append(probability(init_prob, (i, j), grid[i][j].chance))
+        probs.append(temp)
+    return probs
+
+
 # Debugging support method: prints probs matrix
 def probsPrint(probs):
     print("probs:")
@@ -216,6 +229,50 @@ def smart(grid, probs):
     return number_of_searches, distance_traveled
 
 
+def agentComparator():
+    terrains = {0.1: "flat", 0.3: "hilly", 0.7: "forested", 0.9: "grid of caverns"}
+    gridlen = 50
+    num_maps = 15
+    map_repeats = 15
+    avg_fool1_search, avg_fool2_search, avg_smart_search = 0, 0, 0
+    avg_fool1_dist, avg_fool2_dist, avg_smart_dist = 0, 0, 0
+
+    # Generating maps
+    for n in range(num_maps):
+        print(n) #!
+        grid = MapGen.makeMap(gridlen, terrains)
+
+        # Repeated agent runs on each map
+        for i in range(map_repeats):
+            print(f'i: {i}') #!
+            # Set up probability matrix for each agent
+            probs = probSet(grid)
+            num_searches1, dist_traveled1 = fool1(grid, probs)
+            probs = probSet(grid)
+            num_searches2, dist_traveled2 = fool2(grid, probs)
+            probs = probSet(grid)
+            num_searches_smart, dist_traveled_smart = smart(grid, probs)
+
+            avg_fool1_search += num_searches1
+            avg_fool1_dist += dist_traveled1
+            avg_fool2_search += num_searches2
+            avg_fool2_dist += dist_traveled2
+            avg_smart_search += num_searches_smart
+            avg_smart_dist += dist_traveled_smart
+
+    # Average out the map searches/distances for each agent
+    avg_fool1_search /= (num_maps * map_repeats)
+    avg_fool1_dist /= (num_maps * map_repeats)
+    avg_fool2_search /= (num_maps * map_repeats)
+    avg_fool2_dist /= (num_maps * map_repeats)
+    avg_smart_search /= (num_maps * map_repeats)
+    avg_smart_dist /= (num_maps * map_repeats)
+
+    print(f"fool1:  search={avg_fool1_search}\tdist={avg_fool1_dist}")
+    print(f"fool2:  search={avg_fool2_search}\tdist={avg_fool2_dist}")
+    print(f"smart:  search={avg_smart_search}\tdist={avg_smart_dist}")
+
+
 def play():
 
     terrains = {0.1: "flat", 0.3: "hilly", 0.7: "forested", 0.9: "grid of caverns"}
@@ -224,18 +281,12 @@ def play():
     grid = MapGen.makeMap(gridlen, terrains)
     MapGen.gridPrint(grid)
 
-    init_prob = float(1 / (gridlen ** 2))
-    probs = list()
-    for i in range(gridlen):
-        temp = list()
-        for j in range(gridlen):
-            temp.append(probability(init_prob, (i, j), grid[i][j].chance))
-        probs.append(temp)
+    probs = probSet(grid)
 
     # num_searches, dist_traveled = fool2(grid, probs) #!rem
     # print(f'num_searches: {num_searches}') #!rem
     # print(f'dist_traveled: {dist_traveled}') #!rem
-    # num_searches, dist_traveled = fooL2(grid, probs) #!rem
+    # num_searches, dist_traveled = fool2(grid, probs) #!rem
     # print(f'num_searches: {num_searches}') #!rem
     # print(f'dist_traveled: {dist_traveled}') #!rem
     num_searches, dist_traveled = smart(grid, probs)  #!rem

@@ -1,6 +1,6 @@
 import random
 
-# chance is the chance of failing a search
+# chance refers to the chance of failing a search (false positive)
 class GridUnit:
     def __init__(self, status, chance, coordinates):
         self.status = status  # 0 for no target, 1 for has target
